@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .hide{
+            display: none;
+        }
+        .shadow{
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            opacity: 0.4;
+            z-index: 999;
+        }
+        .modal{
+            z-index: 1000;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            height: 300px;
+            width: 400px;
+            background-color: white;
+            margin-left: -200px;
+            margin-top: -150px;
+        }
+    </style>
+</head>
+<body>
+<h1>班级列表</h1>
+
+    <div>
+        <a href="/add_class/">添加</a>
+        <a onclick="showModal()">对话框添加</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>班级名称</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in class_list %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.title }}</td>
+                <td>
+                    <a href="/edit_class/?nid={{ row.id }}">编辑</a>
+                    |
+                    <a href="/del_class/?nid={{ row.id }}">删除</a>
+                </td>
+
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    <div id="shadow" class="shadow hide"></div>
+    <div id="modal" class="modal hide">
+{#        form表单一定会刷新，所以不能保证页面不刷新#}
+{#        <form method="post" action="/modal_add_class/">#}
+{#            <p>#}
+{#                <input type="text"name="title"/>#}
+{#            </p>#}
+{#            <input type="submit" value="提交"/>#}
+{#        </form>#}
+                <p>
+                    班级名称：<input id="title" type="text" name="title"/>
+                </p>
+                <input type="button" value="提交" onclick="AjaxSend();"/><span id="errormsg" style="color:red"></span>
+                <input type="button" value="取消" onclick="cancleModal();"/>
+    </div>
+    <script src="/static/jquery-3.4.1.min.js"></script>
+    <script>
+        function showModal(){
+            document.getElementById("shadow").classList.remove('hide');
+            document.getElementById("modal").classList.remove('hide');
+        }
+
+        function cancleModal(){
+            document.getElementById("shadow").classList.add('hide');
+            document.getElementById("modal").classList.add('hide');
+        }
+
+        function AjaxSend() {
+            $.ajax({
+                url:'/modal_add_class/',//提交地址
+                type: 'post',//提交方式
+                data: {
+                    'title': $('#title').val()//拿到input的值，提交数据
+                },
+                success: function (data) {
+                    //当服务端处理完返回数据自动调用（回调函数），data是服务端返回的值
+                    console.log(data);
+                    if (data == "ok"){
+                        {#alert("success")#}
+                        location.href = '/classes/';
+                    }else{
+                        {#alert("failed")#}
+                        $('#errormsg').text(data);
+                    }
+                }
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .hide{
+            display: none;
+        }
+        .shadow{
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            background: black;
+            opacity: 0.5;
+            z-index: 999;
+        }
+
+        .add_modal{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 300px;
+            background: white;
+            margin-top: -200px;
+            margin-left: -200px;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+<h1>学生列表</h1>
+<div>
+    <a href="/add_student/">添加</a>
+    <a id="addModal">对话框添加</a>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>学生姓名</th>
+        <th>所属班级</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+
+    <tbody>
+        {% for student in student_list %}
+            <tr>
+                <td>{{ student.id }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.title }}</td>
+                <td>
+                    <a href="/edit_student/?nid={{ student.id }}">编辑</a>
+                    |
+                    <a href="/del_student/?nid={{ student.id }}">删除</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<div id="shadow" class="shadow hide"></div>
+<div id="addModal" class="add_modal hide">
+    <p>
+        姓名:<input id="addName" type="text" name="name" placeholder="姓名"/>
+    </p>
+    <p>
+        班级:
+        <select id="addClassId" name="classId">
+            {% for row in class_list %}
+                <option value="{{ row.id }}">{{ row.title }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <input id="btnAdd" type="button" value="添加" />
+    <span id="addError" style="color: red"></span>
+</div>
+
+<script src="/static/jquery-3.4.1.min.js"></script>
+<script>
+    $(function () {
+
+        $('#addModal').click(function () {
+            $('#shadow, #addModal').removeClass('hide');
+        })
+
+        $('#btnAdd').click(function () {
+            $.ajax({
+                url: '/modal_add_student/',
+                type: 'post',
+                data: {'name': $('#addName').val(), 'class_id': $('#addClassId').val()},
+                success: function (arg) {
+                    arg = JSON.parse(arg);
+                    console.log(arg);
+                    if(arg.status){
+                        location.reload();
+                    }else{
+                        $('#addError').text(arg.message);
+                    }
+                }
+            })
+        })
+    })
+
+
+</script>
+</body>
+</html>
